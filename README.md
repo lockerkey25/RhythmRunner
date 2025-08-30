@@ -33,7 +33,7 @@ RhythmRunner/
 └── RhythmRunnerApp.swift        # App entry point
 ```
 
-### 🔧 Key Components
+### Components
 
 #### AudioManager
 - Handles metronome functionality using AVFoundation
@@ -109,26 +109,11 @@ RhythmRunner/
 ### Planned Features
 - **Real Spotify API Integration**: Replace mock data with actual Spotify API calls
 - **Core Data Persistence**: Save workout history and user preferences
-- **Advanced Analytics**: Detailed workout statistics and progress tracking
+- **Analytics**: Detailed workout statistics and progress tracking
 - **Social Features**: Share workouts and compete with friends
 - **Custom Playlists**: Create and save BPM-specific playlists
 - **Voice Commands**: Hands-free control during workouts
 - **Apple Watch Integration**: Companion app for wearable devices
-
-### Technical Improvements
-- **AI BPM Analysis**: Implement actual AI for song BPM detection
-- **Offline Mode**: Cache songs for offline playback
-- **Background Audio**: Continue playback when app is in background
-- **Push Notifications**: Workout reminders and achievements
-- **HealthKit Integration**: Sync with Apple Health for comprehensive tracking
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## License
 
