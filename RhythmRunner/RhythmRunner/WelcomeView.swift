@@ -1,0 +1,112 @@
+import SwiftUI
+
+struct WelcomeView: View {
+    @State private var isActive = false
+    @State private var logoScale: CGFloat = 0.8
+    @State private var logoOpacity: Double = 0.0
+    @State private var showPressAnywhereText = false
+    @Environment(\.colorScheme) var colorScheme
+    
+    var body: some View {
+        ZStack {
+            // Background gradient
+            LinearGradient(
+                gradient: Gradient(colors: colorScheme == .dark ? 
+                                  [Color.black, Color.purple.opacity(0.8), Color.black] : 
+                                  [Color.white, Color.blue.opacity(0.3), Color.purple.opacity(0.2)]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                Spacer()
+                
+                // Main content container - using golden ratio for positioning
+                VStack(spacing: 24) {
+                    // Logo placeholder - elevated as primary focal point
+                    ZStack {
+                        Circle()
+                            .fill(LinearGradient(
+                                gradient: Gradient(colors: [Color.purple, Color.blue]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 100, height: 100)
+                            .shadow(color: .purple.opacity(0.3), radius: 15, x: 0, y: 8)
+                        
+                        Image(systemName: "figure.run")
+                            .font(.system(size: 42, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .scaleEffect(logoScale)
+                    .opacity(logoOpacity)
+                    
+                    // Text hierarchy - clear visual hierarchy with proper spacing
+                    VStack(spacing: 8) {
+                        // App name - primary heading
+                        Text("RhythmRunner")
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                            .opacity(logoOpacity)
+                        
+                        // Tagline - secondary text with reduced emphasis
+                        Text("Run to the Beat")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.black.opacity(0.7))
+                            .opacity(logoOpacity)
+                    }
+                }
+                
+                Spacer()
+                
+                // Press anywhere to start text - subtle and minimal
+                if showPressAnywhereText {
+                    VStack(spacing: 6) {
+                        Image(systemName: "hand.tap")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.4) : Color.black.opacity(0.4))
+                        
+                        Text("Tap to continue")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.5) : Color.black.opacity(0.5))
+                            .multilineTextAlignment(.center)
+                    }
+                    .opacity(showPressAnywhereText ? 0.8 : 0.0)
+                    .scaleEffect(showPressAnywhereText ? 1.0 : 0.9)
+                    .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: showPressAnywhereText)
+                }
+                
+                Spacer(minLength: 60)
+            }
+        }
+        .onTapGesture {
+            if showPressAnywhereText {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    isActive = true
+                }
+            }
+        }
+        .onAppear {
+            // Animate logo appearance
+            withAnimation(.easeInOut(duration: 0.8)) {
+                logoScale = 1.0
+                logoOpacity = 1.0
+            }
+            
+            // Show "press anywhere" text after logo animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                withAnimation(.easeInOut(duration: 0.8)) {
+                    showPressAnywhereText = true
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $isActive) {
+            ContentView()
+        }
+    }
+}
+
+#Preview {
+    WelcomeView()
+}
