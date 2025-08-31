@@ -197,8 +197,8 @@ struct RunningSessionView: View {
                 .shadow(color: colorScheme == .dark ? .black.opacity(0.3) : .white.opacity(0.3), radius: 1, x: 0, y: 1)
             
             HStack(spacing: 8) {
-                Text(workoutManager.isTimedSession ? workoutManager.formattedTimeRemaining : workoutManager.formattedDuration)
-                    .font(.system(size: 58, weight: .bold, design: .monospaced))
+                Text("\(workoutManager.isTimedSession ? workoutManager.formattedTimeRemaining : workoutManager.formattedDuration)")
+                    .font(.custom("SF Mono", size: 58, relativeTo: .largeTitle))
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                     .shadow(color: colorScheme == .dark ? .white.opacity(0.4) : .black.opacity(0.4), radius: 15, x: 0, y: 0)
                     .shadow(color: colorScheme == .dark ? .black.opacity(0.5) : .white.opacity(0.5), radius: 8, x: 0, y: 4)
@@ -260,15 +260,33 @@ struct RunningSessionView: View {
                 .foregroundColor(colorScheme == .dark ? .white : .black)
                 .shadow(color: colorScheme == .dark ? .black.opacity(0.3) : .white.opacity(0.3), radius: 2, x: 0, y: 1)
             
-            // Simplified, clean waveform visualization
-            SimpleCircularVisualizer(
+            // Full-screen wave visualization that fills entire available space
+            FullScreenWaveView(
                 bpm: Double(selectedBPM),
-                radius: 100,
-                primaryColor: colorScheme == .dark ? .cyan : .blue
+                primaryColor: colorScheme == .dark ? .cyan : .blue,
+                isPlaying: spotifyManager.currentSong != nil,
+                audioIntensity: spotifyManager.currentSong != nil ? 0.8 : 0.0
             )
-            .frame(width: 240, height: 240)
-            .shadow(color: colorScheme == .dark ? .cyan.opacity(0.3) : .blue.opacity(0.3), radius: 15, x: 0, y: 8)
+            .frame(height: 400) // Increased height for more dramatic effect
             .clipped()
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(colorScheme == .dark ? Color.white.opacity(0.02) : Color.black.opacity(0.02))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        (colorScheme == .dark ? Color.cyan : Color.blue).opacity(0.3),
+                                        (colorScheme == .dark ? Color.cyan : Color.blue).opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    )
+            )
         }
         .padding(.vertical, 10)
     }
@@ -279,13 +297,13 @@ struct RunningSessionView: View {
             // BPM Display
             VStack(spacing: 5) {
                 Text("\(selectedBPM)")
-                    .font(.system(size: 42, weight: .bold, design: .rounded))
+                    .font(.custom("SF Pro Display", size: 42, relativeTo: .largeTitle))
                     .foregroundColor(colorScheme == .dark ? .cyan : .blue)
                     .shadow(color: colorScheme == .dark ? .cyan.opacity(0.5) : .blue.opacity(0.5), radius: 10, x: 0, y: 0)
                 
-                Text("BPM")
-                    .font(.title3)
-                    .foregroundColor(colorScheme == .dark ? .gray : .secondary)
+                                        Text("BPM")
+                            .font(.custom("SF Pro Text", size: 16, relativeTo: .subheadline))
+                            .foregroundColor(colorScheme == .dark ? .gray : .secondary)
             }
             
             // Metronome Toggle

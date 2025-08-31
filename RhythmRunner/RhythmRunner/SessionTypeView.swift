@@ -1,3 +1,10 @@
+//
+//  SessionTypeView.swift
+//  RhythmRunner
+//
+//  Created by yyz on 2025-08-30.
+//
+
 import SwiftUI
 
 struct SessionTypeView: View {

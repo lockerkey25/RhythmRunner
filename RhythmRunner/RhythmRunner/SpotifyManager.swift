@@ -28,8 +28,8 @@ class SpotifyManager: ObservableObject {
     @Published var errorMessage: String?
     @Published var currentPlaybackState: SpotifyPlaybackState?
     
-    private let apiService: SpotifyAPIService
-    private let authService: SpotifyAuthService
+    private let apiService: SpotifyAPIServiceProtocol
+    private let authService: SpotifyAuthServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     
     // BPM search configurations
@@ -38,14 +38,14 @@ class SpotifyManager: ObservableObject {
     
     // Mock data for fallback when no API connection
     private let mockSongs: [Song] = [
-        Song(id: "1", title: "Running in the 90s", artist: "Max Coveri", album: "Initial D", bpm: 160, spotifyURI: "spotify:track:1", albumArtURL: nil),
-        Song(id: "2", title: "Eye of the Tiger", artist: "Survivor", album: "Rocky III", bpm: 180, spotifyURI: "spotify:track:2", albumArtURL: nil),
-        Song(id: "3", title: "Born to Run", artist: "Bruce Springsteen", album: "Born to Run", bpm: 140, spotifyURI: "spotify:track:3", albumArtURL: nil),
-        Song(id: "4", title: "Chariots of Fire", artist: "Vangelis", album: "Chariots of Fire", bpm: 120, spotifyURI: "spotify:track:4", albumArtURL: nil),
-        Song(id: "5", title: "The Final Countdown", artist: "Europe", album: "The Final Countdown", bpm: 160, spotifyURI: "spotify:track:5", albumArtURL: nil),
-        Song(id: "6", title: "We Will Rock You", artist: "Queen", album: "News of the World", bpm: 180, spotifyURI: "spotify:track:6", albumArtURL: nil),
-        Song(id: "7", title: "Sweet Child O' Mine", artist: "Guns N' Roses", album: "Appetite for Destruction", bpm: 140, spotifyURI: "spotify:track:7", albumArtURL: nil),
-        Song(id: "8", title: "Don't Stop Believin'", artist: "Journey", album: "Escape", bpm: 120, spotifyURI: "spotify:track:8", albumArtURL: nil)
+        Song(id: "1", title: "Running in the 90s", artist: "Max Coveri", album: "Initial D", bpm: 160, spotifyURI: "mock:track:1", albumArtURL: nil),
+        Song(id: "2", title: "Eye of the Tiger", artist: "Survivor", album: "Rocky III", bpm: 180, spotifyURI: "mock:track:2", albumArtURL: nil),
+        Song(id: "3", title: "Born to Run", artist: "Bruce Springsteen", album: "Born to Run", bpm: 140, spotifyURI: "mock:track:3", albumArtURL: nil),
+        Song(id: "4", title: "Chariots of Fire", artist: "Vangelis", album: "Chariots of Fire", bpm: 120, spotifyURI: "mock:track:4", albumArtURL: nil),
+        Song(id: "5", title: "The Final Countdown", artist: "Europe", album: "The Final Countdown", bpm: 160, spotifyURI: "mock:track:5", albumArtURL: nil),
+        Song(id: "6", title: "We Will Rock You", artist: "Queen", album: "News of the World", bpm: 180, spotifyURI: "mock:track:6", albumArtURL: nil),
+        Song(id: "7", title: "Sweet Child O' Mine", artist: "Guns N' Roses", album: "Appetite for Destruction", bpm: 140, spotifyURI: "mock:track:7", albumArtURL: nil),
+        Song(id: "8", title: "Don't Stop Believin'", artist: "Journey", album: "Escape", bpm: 120, spotifyURI: "mock:track:8", albumArtURL: nil)
     ]
     
     init() {
@@ -65,7 +65,7 @@ class SpotifyManager: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        print("🎵 Starting Spotify authentication...")
+        print("Starting Spotify authentication...")
         
         authService.authenticate()
             .sink(
@@ -75,7 +75,7 @@ class SpotifyManager: ObservableObject {
                         
                         switch completion {
                         case .failure(let error):
-                            print("❌ Spotify authentication failed: \(error.localizedDescription)")
+                            print("Spotify authentication failed: \(error.localizedDescription)")
                             
                             // Provide user-friendly error messages
                             let userFriendlyMessage: String
@@ -104,14 +104,14 @@ class SpotifyManager: ObservableObject {
                                 }
                             }
                         case .finished:
-                            print("✅ Spotify authentication completed")
+                            print("Spotify authentication completed")
                             break
                         }
                     }
                 },
                 receiveValue: { [weak self] tokenResponse in
                     DispatchQueue.main.async {
-                        print("🔑 Received Spotify token, handling authentication success")
+                        print("Received Spotify token, handling authentication success")
                         self?.handleAuthenticationSuccess(tokenResponse)
                     }
                 }
@@ -169,14 +169,35 @@ class SpotifyManager: ObservableObject {
             self.errorMessage = nil
             print("✅ SpotifyManager isConnected set to true")
             
+            // Check user profile to verify Premium status
+            self.checkUserProfile()
+            
             // Automatically fetch some default songs after successful authentication
             self.fetchDefaultSongs()
         }
     }
     
+    private func checkUserProfile() {
+        // Check if user has Premium (required for playback control)
+        apiService.getCurrentUserProfile()
+            .sink(
+                receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        print("⚠️ Could not verify user profile: \(error)")
+                    }
+                },
+                receiveValue: { userProfile in
+                    let displayName = userProfile.displayName ?? userProfile.id
+                    print("👤 User profile loaded: \(displayName)")
+                    // Note: Premium status would be available here if needed
+                }
+            )
+            .store(in: &cancellables)
+    }
+    
     private func fetchDefaultSongs() {
         // Fetch songs for a default BPM (140) to show immediate results
-        print("🎵 Fetching default songs after authentication success...")
+        print("Fetching default songs after authentication success...")
         getSongsForBPM(140)
     }
     
@@ -236,8 +257,13 @@ class SpotifyManager: ObservableObject {
                 },
                 receiveValue: { [weak self] songs in
                     DispatchQueue.main.async {
-                        self?.recommendedSongs = songs
-                        self?.isLoading = false
+                        if songs.isEmpty {
+                            // If no songs returned, use mock data
+                            self?.getMockSongsForBPM(targetBPM)
+                        } else {
+                            self?.recommendedSongs = songs
+                            self?.isLoading = false
+                        }
                     }
                 }
             )
@@ -306,45 +332,84 @@ class SpotifyManager: ObservableObject {
         return Array(songsWithBPM.prefix(20))
     }
     
-    private func getMockSongsForBPM(_ targetBPM: Int) {
+    func getMockSongsForBPM(_ targetBPM: Int) {
         isLoading = true
         
         // Simulate API call delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let tolerance = 10
-            self.recommendedSongs = self.mockSongs.filter { song in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            let tolerance = 15 // Increased tolerance for better matching
+            let filteredSongs = self.mockSongs.filter { song in
                 abs(song.bpm - targetBPM) <= tolerance
             }
+            
+            // Always provide songs - if no exact matches, use closest ones
+            if filteredSongs.isEmpty {
+                // Sort by BPM difference and take the closest ones
+                let sortedSongs = self.mockSongs.sorted { song1, song2 in
+                    abs(song1.bpm - targetBPM) < abs(song2.bpm - targetBPM)
+                }
+                self.recommendedSongs = Array(sortedSongs.prefix(6))
+            } else {
+                self.recommendedSongs = filteredSongs
+            }
+            
             self.isLoading = false
+            print("Loaded \(self.recommendedSongs.count) mock songs for \(targetBPM) BPM")
         }
     }
     
     // MARK: - Playback Methods
     
     func playSong(_ song: Song) {
-        guard isConnected else {
+        // Always allow playing mock songs, even when not connected
+        if !isConnected || song.spotifyURI.hasPrefix("mock:track:") {
             // For mock data, just update current song
             currentSong = song
-            print("Mock Playing: \(song.title) by \(song.artist) (BPM: \(song.bpm))")
+            print("🎵 Mock Playing: \(song.title) by \(song.artist) (BPM: \(song.bpm))")
             return
         }
         
-        apiService.playTrack(uri: song.spotifyURI, deviceID: nil)
-            .sink(
-                receiveCompletion: { [weak self] completion in
-                    if case .failure(let error) = completion {
+        print("🎵 Attempting to play Spotify track: \(song.title)")
+        
+        // First check if we have an active device
+        checkActiveDevices { [weak self] deviceID in
+            guard let self = self else { return }
+            
+            self.apiService.playTrack(uri: song.spotifyURI, deviceID: deviceID)
+                .sink(
+                    receiveCompletion: { completion in
+                        if case .failure(let error) = completion {
+                            DispatchQueue.main.async {
+                                let errorMessage: String
+                                switch error {
+                                case .authenticationRequired:
+                                    errorMessage = "Please reconnect to Spotify"
+                                case .networkError(_):
+                                    errorMessage = "Network error. Please check your connection"
+                                default:
+                                    errorMessage = "Playback error: \(error.localizedDescription)"
+                                }
+                                self.errorMessage = errorMessage
+                                print("❌ Playback failed: \(errorMessage)")
+                            }
+                        }
+                    },
+                    receiveValue: { _ in
                         DispatchQueue.main.async {
-                            self?.errorMessage = "Playback error: \(error.localizedDescription)"
+                            self.currentSong = song
+                            self.errorMessage = nil
+                            print("✅ Successfully started playback of: \(song.title)")
                         }
                     }
-                },
-                receiveValue: { [weak self] in
-                    DispatchQueue.main.async {
-                        self?.currentSong = song
-                    }
-                }
-            )
-            .store(in: &cancellables)
+                )
+                .store(in: &self.cancellables)
+        }
+    }
+    
+    private func checkActiveDevices(completion: @escaping (String?) -> Void) {
+        // For now, we'll use nil (which means use the currently active device)
+        // In a full implementation, you'd query available devices and let user choose
+        completion(nil)
     }
     
     func pausePlayback() {

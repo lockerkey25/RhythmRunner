@@ -97,7 +97,25 @@ struct SongListView: View {
             }
         }
         .onAppear {
-            spotifyManager.getSongsForBPM(bpm)
+            // Always try to get songs, fallback to mock data if needed
+            if spotifyManager.isConnected {
+                spotifyManager.getSongsForBPM(bpm)
+            } else {
+                // Force load mock songs when not connected
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    spotifyManager.getMockSongsForBPM(bpm)
+                }
+            }
+        }
+        .onReceive(spotifyManager.$recommendedSongs) { songs in
+            // If songs are empty after a delay, force load mock data
+            if songs.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    if self.spotifyManager.recommendedSongs.isEmpty {
+                        self.spotifyManager.getMockSongsForBPM(self.bpm)
+                    }
+                }
+            }
         }
     }
 }

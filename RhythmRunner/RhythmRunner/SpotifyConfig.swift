@@ -14,7 +14,7 @@ struct SpotifyConfig {
     // Redirect URI - must match what's configured in your Spotify app
     static let redirectURI = "rhythmrunner://spotify-callback"
     
-    // Scopes needed for the app
+    // Enhanced scopes needed for the app
     static let scopes: Set<String> = [
         "user-read-playback-state",
         "user-modify-playback-state", 
@@ -22,12 +22,23 @@ struct SpotifyConfig {
         "streaming",
         "playlist-read-private",
         "playlist-read-collaborative",
-        "user-library-read"
+        "user-library-read",
+        "user-read-email",
+        "user-read-private"
     ]
     
     // API Base URLs
     static let spotifyAPIBaseURL = "https://api.spotify.com/v1"
     static let spotifyAccountsBaseURL = "https://accounts.spotify.com"
+    
+    // Enhanced error messages
+    static let errorMessages = [
+        "network_error": "Network connection issue. Please check your internet and try again.",
+        "auth_failed": "Authentication failed. Please try logging in again.",
+        "premium_required": "Spotify Premium is required for full playback control.",
+        "device_not_found": "No active Spotify device found. Please open Spotify app first.",
+        "playback_error": "Playback error. Please try a different song or restart Spotify."
+    ]
 }
 
 // MARK: - API Endpoints
@@ -38,4 +49,6 @@ extension SpotifyConfig {
     static let mePlayerEndpoint = "/me/player"
     static let mePlayerPlayEndpoint = "/me/player/play"
     static let mePlayerPauseEndpoint = "/me/player/pause"
+    static let meEndpoint = "/me"
+    static let devicesEndpoint = "/me/player/devices"
 }

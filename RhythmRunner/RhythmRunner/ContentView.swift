@@ -137,13 +137,17 @@ struct ContentView: View {
                 .foregroundColor(colorScheme == .dark ? .white : .black)
             
             Text("RhythmRunner")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(.custom("SF Pro Display", size: 48, relativeTo: .largeTitle))
+                .fontWeight(.black)
                 .foregroundColor(colorScheme == .dark ? .white : .black)
+                .shadow(color: selectedBPMOption.color.opacity(0.3), radius: 10, x: 0, y: 5)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
             
-            Text("Run to the beat")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+            Text("Run to the Beat")
+                .font(.custom("SF Pro Text", size: 24, relativeTo: .largeTitle))
+                .fontWeight(.medium)
+                .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.8) : Color.black.opacity(0.7))
         }
         .padding(.top, 20)
     }
@@ -235,8 +239,8 @@ struct ContentView: View {
     private var bpmSelectionSection: some View {
         VStack(spacing: 20) {
             Text("Choose Your Tempo")
-                .font(.title2)
-                .fontWeight(.semibold)
+                .font(.custom("SF Pro Display", size: 28, relativeTo: .title2))
+                .fontWeight(.bold)
                 .foregroundColor(colorScheme == .dark ? .white : .black)
             
             // Enhanced BPM Grid with better spacing and visual hierarchy
@@ -347,13 +351,13 @@ struct ContentView: View {
             // Enhanced BPM Display with better visual hierarchy
             VStack(spacing: 8) {
                 Text("\(selectedBPMOption.bpm)")
-                    .font(.system(size: 52, weight: .bold, design: .rounded))
+                    .font(.custom("SF Pro Display", size: 52, relativeTo: .largeTitle))
                     .foregroundColor(selectedBPMOption.color)
                     .shadow(color: selectedBPMOption.color.opacity(0.3), radius: 8, x: 0, y: 4)
                 
                 Text("BPM")
-                    .font(.title3)
-                    .fontWeight(.medium)
+                    .font(.custom("SF Pro Text", size: 20, relativeTo: .title3))
+                    .fontWeight(.semibold)
                     .foregroundColor(.gray)
             }
             .padding(.vertical, 10)
@@ -395,8 +399,8 @@ struct ContentView: View {
                         .scaleEffect(1.1)
                     
                     Text(workoutManager.isWorkoutActive ? "End Session" : "Start Workout")
-                        .font(.headline)
-                        .fontWeight(.semibold)
+                        .font(.custom("SF Pro Display", size: 20, relativeTo: .headline))
+                        .fontWeight(.bold)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -430,8 +434,8 @@ struct ContentView: View {
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Text("Metronome")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(.custom("SF Pro Text", size: 16, relativeTo: .subheadline))
+                    .fontWeight(.semibold)
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Spacer()
@@ -467,22 +471,25 @@ struct ContentView: View {
     private func currentSongSection(song: Song) -> some View {
         VStack(spacing: 15) {
             Text("Now Playing")
-                .font(.headline)
+                .font(.custom("SF Pro Display", size: 18, relativeTo: .headline))
+                .fontWeight(.semibold)
                 .foregroundColor(.gray)
             
             VStack(spacing: 8) {
                 Text(song.title)
-                    .font(.title3)
-                    .fontWeight(.semibold)
+                    .font(.custom("SF Pro Display", size: 20, relativeTo: .title3))
+                    .fontWeight(.bold)
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                     .multilineTextAlignment(.center)
                 
                 Text(song.artist)
-                    .font(.subheadline)
+                    .font(.custom("SF Pro Text", size: 16, relativeTo: .subheadline))
+                    .fontWeight(.medium)
                     .foregroundColor(.gray)
                 
                 Text("\(song.bpm) BPM")
-                    .font(.caption)
+                    .font(.custom("SF Pro Text", size: 12, relativeTo: .caption))
+                    .fontWeight(.semibold)
                     .foregroundColor(selectedBPMOption.color)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 4)
@@ -511,7 +518,8 @@ struct ContentView: View {
                             .font(.title2)
                         
                         Text("Spotify Connected")
-                            .font(.headline)
+                            .font(.custom("SF Pro Display", size: 18, relativeTo: .headline))
+                            .fontWeight(.semibold)
                             .foregroundColor(colorScheme == .dark ? .white : .black)
                         
                         Spacer()
@@ -541,6 +549,8 @@ struct ContentView: View {
                                 .foregroundColor(.blue)
                             
                             Text("Browse Songs")
+                                .font(.custom("SF Pro Text", size: 16, relativeTo: .subheadline))
+                                .fontWeight(.semibold)
                                 .foregroundColor(colorScheme == .dark ? .white : .black)
                             
                             Spacer()
@@ -559,6 +569,45 @@ struct ContentView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.05))
+                        )
+                    }
+                    
+                    // Current song display if playing
+                    if let currentSong = spotifyManager.currentSong {
+                        HStack {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .foregroundColor(.green)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(currentSong.title)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(colorScheme == .dark ? .white : .black)
+                                    .lineLimit(1)
+                                
+                                Text("\(currentSong.artist) • \(currentSong.bpm) BPM")
+                                    .font(.caption2)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                            }
+                            
+                            Spacer()
+                            
+                            Button("Stop") {
+                                spotifyManager.stopPlayback()
+                            }
+                            .font(.caption2)
+                            .foregroundColor(.red)
+                        }
+                        .padding(.horizontal, 15)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.green.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                                )
                         )
                     }
                 }
@@ -640,8 +689,9 @@ struct ContentView: View {
                             }
                             
                             Text(spotifyManager.isLoading ? "Connecting..." : "Connect Spotify")
-                                .foregroundColor(colorScheme == .dark ? .white : .black)
-                                .font(.headline)
+                                .font(.custom("SF Pro Display", size: 18, relativeTo: .headline))
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
                             
                             Spacer()
                             
@@ -655,11 +705,14 @@ struct ContentView: View {
                         .padding(.vertical, 15)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(colorScheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.05))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.green.opacity(0.5), lineWidth: 2)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.green, Color.green.opacity(0.8)],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
                                 )
+                                .shadow(color: .green.opacity(0.3), radius: 5, x: 0, y: 2)
                         )
                     }
                     .disabled(spotifyManager.isLoading || !networkMonitor.isConnected)
@@ -667,7 +720,8 @@ struct ContentView: View {
                     // Info text
                     VStack(spacing: 8) {
                         Text("Connect to Spotify to access millions of songs with BPM matching for your workout.")
-                            .font(.caption)
+                            .font(.custom("SF Pro Text", size: 12, relativeTo: .caption))
+                            .fontWeight(.medium)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 10)
@@ -675,20 +729,23 @@ struct ContentView: View {
                         if spotifyManager.errorMessage != nil {
                             VStack(spacing: 4) {
                                 Text("Troubleshooting Tips:")
-                                    .font(.caption2)
-                                    .fontWeight(.semibold)
+                                    .font(.custom("SF Pro Text", size: 10, relativeTo: .caption2))
+                                    .fontWeight(.bold)
                                     .foregroundColor(.gray)
                                 
                                 Text("• Make sure you have Spotify Premium")
-                                    .font(.caption2)
+                                    .font(.custom("SF Pro Text", size: 10, relativeTo: .caption2))
+                                    .fontWeight(.medium)
                                     .foregroundColor(.gray)
                                 
                                 Text("• Check your internet connection")
-                                    .font(.caption2)
+                                    .font(.custom("SF Pro Text", size: 10, relativeTo: .caption2))
+                                    .fontWeight(.medium)
                                     .foregroundColor(.gray)
                                 
                                 Text("• Try logging out and back into Spotify")
-                                    .font(.caption2)
+                                    .font(.custom("SF Pro Text", size: 10, relativeTo: .caption2))
+                                    .fontWeight(.medium)
                                     .foregroundColor(.gray)
                             }
                             .multilineTextAlignment(.leading)

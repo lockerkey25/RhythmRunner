@@ -15,6 +15,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>RhythmRunner uses the microphone to synchronize music playback with your running rhythm.</string>
+	<key>NSMusicUsageDescription</key>
+	<string>RhythmRunner uses music access to play songs that match your target BPM for an optimal running experience.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

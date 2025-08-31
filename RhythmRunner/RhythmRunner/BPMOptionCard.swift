@@ -50,29 +50,27 @@ struct BPMOptionCard: View {
                     }
                     
                     Image(systemName: option.icon)
-                        .font(.title)
+                        .font(.custom("SF Pro Display", size: 24, relativeTo: .title))
                         .foregroundColor(option.color)
                         .scaleEffect(isSelected ? 1.3 : 1.0)
                         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isSelected)
                 }
                 
                 Text(option.name)
-                    .font(.headline)
-                    .fontWeight(.semibold)
+                    .font(.custom("SF Pro Display", size: 18, relativeTo: .headline))
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Text("\(option.bpm)")
-                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .font(.custom("SF Pro Display", size: 26, relativeTo: .title))
                     .foregroundColor(option.color)
                     .shadow(color: option.color.opacity(0.3), radius: 2, x: 0, y: 1)
                 
                 Text("BPM")
-                    .font(.caption)
+                    .font(.custom("SF Pro Text", size: 12, relativeTo: .caption))
                     .foregroundColor(option.color)
-                    .fontWeight(.medium)
                 
                 Text(option.description)
-                    .font(.caption)
+                    .font(.custom("SF Pro Text", size: 12, relativeTo: .caption))
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
@@ -123,27 +121,30 @@ struct BPMOptionCard: View {
         .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
             isPressed = pressing
         }, perform: {})
-        .onTapGesture(count: 2) {
-            // Double-tap action
-            if let doubleTapAction = onDoubleTap {
-                // Strong haptic feedback for double-tap
-                let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
-                impactFeedback.impactOccurred()
-                
-                // Visual feedback
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showDoubleTapFeedback = true
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        showDoubleTapFeedback = false
+        .simultaneousGesture(
+            TapGesture(count: 2)
+                .onEnded { _ in
+                    // Double-tap action
+                    if let doubleTapAction = onDoubleTap {
+                        // Strong haptic feedback for double-tap
+                        let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
+                        impactFeedback.impactOccurred()
+                        
+                        // Visual feedback
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showDoubleTapFeedback = true
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showDoubleTapFeedback = false
+                            }
+                        }
+                        
+                        doubleTapAction()
                     }
                 }
-                
-                doubleTapAction()
-            }
-        }
+        )
         .onHover { hovering in
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 hoverScale = hovering ? 1.02 : 1.0
@@ -168,12 +169,11 @@ struct BPMOptionCard: View {
                 
                 VStack(spacing: 10) {
                     Image(systemName: "play.fill")
-                        .font(.title2)
+                        .font(.custom("SF Pro Display", size: 20, relativeTo: .title2))
                         .foregroundColor(.white)
                     
                     Text("Starting Session")
-                        .font(.caption)
-                        .fontWeight(.bold)
+                        .font(.custom("SF Pro Text", size: 12, relativeTo: .caption))
                         .foregroundColor(.white)
                 }
                 .scaleEffect(showDoubleTapFeedback ? 1.2 : 0.8)

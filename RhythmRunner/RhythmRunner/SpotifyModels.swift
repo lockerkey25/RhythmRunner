@@ -87,9 +87,9 @@ struct SpotifyAlbum: Codable {
 }
 
 struct SpotifyImage: Codable {
+    let url: String
     let height: Int?
     let width: Int?
-    let url: String
 }
 
 struct SpotifyExternalUrls: Codable {
@@ -127,6 +127,26 @@ struct SpotifyAudioFeature: Codable {
         case durationMs = "duration_ms"
     }
 }
+
+// MARK: - User Profile Models
+struct SpotifyUserProfile: Codable {
+    let id: String
+    let displayName: String?
+    let email: String?
+    let country: String?
+    let product: String? // "premium", "free", etc.
+    let images: [SpotifyImage]?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case displayName = "display_name"
+        case email
+        case country
+        case product
+        case images
+    }
+}
+
 
 // MARK: - Playback Models
 struct SpotifyPlaybackState: Codable {

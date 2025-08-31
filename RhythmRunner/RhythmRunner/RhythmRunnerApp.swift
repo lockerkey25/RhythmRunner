@@ -30,8 +30,8 @@ struct RhythmRunnerApp: App {
                     audioManager.stopMetronome()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-                    // Resume audio session when app becomes active
-                    audioManager.resetAudioSession()
+                    // App became active - no action needed for simple metronome
+                    print("📱 App became active")
                 }
         }
     }

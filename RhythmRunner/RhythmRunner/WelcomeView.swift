@@ -1,3 +1,10 @@
+//
+//  WelcomeView.swift
+//  RhythmRunner
+//
+//  Created by yyz on 2025-08-30.
+//
+
 import SwiftUI
 
 struct WelcomeView: View {
@@ -36,7 +43,7 @@ struct WelcomeView: View {
                             .shadow(color: .purple.opacity(0.3), radius: 15, x: 0, y: 8)
                         
                         Image(systemName: "figure.run")
-                            .font(.system(size: 42, weight: .bold))
+                            .font(.custom("SF Pro Display", size: 42, relativeTo: .largeTitle))
                             .foregroundColor(.white)
                     }
                     .scaleEffect(logoScale)
@@ -46,13 +53,15 @@ struct WelcomeView: View {
                     VStack(spacing: 8) {
                         // App name - primary heading
                         Text("RhythmRunner")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.custom("SF Pro Display", size: 28, relativeTo: .title))
                             .foregroundColor(colorScheme == .dark ? .white : .black)
                             .opacity(logoOpacity)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                         
                         // Tagline - secondary text with reduced emphasis
                         Text("Run to the Beat")
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.custom("SF Pro Text", size: 16, relativeTo: .body))
                             .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.7) : Color.black.opacity(0.7))
                             .opacity(logoOpacity)
                     }
@@ -64,11 +73,11 @@ struct WelcomeView: View {
                 if showPressAnywhereText {
                     VStack(spacing: 6) {
                         Image(systemName: "hand.tap")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.custom("SF Pro Text", size: 14, relativeTo: .caption))
                             .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.4) : Color.black.opacity(0.4))
                         
                         Text("Tap to continue")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.custom("SF Pro Text", size: 13, relativeTo: .caption))
                             .foregroundColor(colorScheme == .dark ? Color.white.opacity(0.5) : Color.black.opacity(0.5))
                             .multilineTextAlignment(.center)
                     }
@@ -103,6 +112,7 @@ struct WelcomeView: View {
         }
         .fullScreenCover(isPresented: $isActive) {
             ContentView()
+                .transition(.scale.combined(with: .opacity))
         }
     }
 }

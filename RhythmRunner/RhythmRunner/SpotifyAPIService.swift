@@ -46,6 +46,8 @@ protocol SpotifyAPIServiceProtocol {
     func playTrack(uri: String, deviceID: String?) -> AnyPublisher<Void, SpotifyAPIError>
     func pausePlayback(deviceID: String?) -> AnyPublisher<Void, SpotifyAPIError>
     func resumePlayback(deviceID: String?) -> AnyPublisher<Void, SpotifyAPIError>
+    func setAccessToken(_ token: String, expiresIn: Int)
+    func getCurrentUserProfile() -> AnyPublisher<SpotifyUserProfile, SpotifyAPIError>
 }
 
 // MARK: - Spotify API Service Implementation
@@ -344,5 +346,12 @@ class SpotifyAPIService: SpotifyAPIServiceProtocol {
             return Fail(error: error as? SpotifyAPIError ?? SpotifyAPIError.networkError(error))
                 .eraseToAnyPublisher()
         }
+    }
+    
+    func getCurrentUserProfile() -> AnyPublisher<SpotifyUserProfile, SpotifyAPIError> {
+        let url = URL(string: "\(SpotifyConfig.spotifyAPIBaseURL)\(SpotifyConfig.meEndpoint)")!
+        let request = try! createRequest(url: url)
+        
+        return performRequestWithRetry(request, responseType: SpotifyUserProfile.self)
     }
 }
